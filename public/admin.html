@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Aura Perfumes</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .admin-container { max-width: 900px; margin: 0 auto; padding: 2rem; background: var(--color-pink); border-radius: 8px;}
+        table { width: 100%; border-collapse: collapse; margin-top: 2rem; background: white;}
+        th, td { padding: 1rem; border-bottom: 1px solid #ccc; text-align: left; }
+        th { background: #eee; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">AURA <span style="font-size: 1rem; color: #fff;">ADMIN</span></div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Back to Store</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section>
+        <h2 class="section-title">Product Management</h2>
+        <div class="admin-container">
+            <button class="btn btn-primary" onclick="alert('Add Product functionality goes here!')">Add New Product</button>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th><th>Name</th><th>Price</th><th>Category</th><th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-products">
+                    <!-- Products -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = getUser();
+            // Just basic restriction, in real app backend verifies role
+            if(!user || user.role !== 'admin' && user.name !== 'Admin') {
+                // Let's allow access for demo purposes, but show a warning
+                console.warn("You might not have full admin privileges. Logged in as: " + (user? user.name : "Guest"));
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/products`);
+                const products = await res.json();
+                const tbody = document.getElementById('admin-products');
+                
+                tbody.innerHTML = products.map(p => `
+                    <tr>
+                        <td>${p.id}</td>
+                        <td>${p.name}</td>
+                        <td>$${p.price.toFixed(2)}</td>
+                        <td>${p.category}</td>
+                        <td>
+                            <button class="btn btn-outline" style="padding: 0.3rem 0.8rem; font-size: 0.8rem;" onclick="alert('Edit Product ${p.id}')">Edit</button>
+                            <button class="btn btn-primary" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; background: #e74c3c; color: white;" onclick="alert('Delete Product ${p.id}')">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch(e) {
+                console.error("Failed to load admin products", e);
+            }
+        });
+    </script>
+</body>
+</html>
